@@ -45,6 +45,10 @@ Resources:
         ToPort: 8080
         CidrIp: 0.0.0.0/0
       - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
         FromPort: 22
         ToPort: 22
         CidrIp: 0.0.0.0/0  
@@ -64,7 +68,6 @@ Resources:
         IamInstanceProfile: !Ref ProfileWithRolesForOurApp
         ImageId: ami-0d1cd67c26f5fca19
         InstanceType: t2.medium
-        KeyName: private-devops-og-devops
         SecurityGroups:
           - !Ref WebServerSecGroup
         UserData:
