@@ -67,7 +67,7 @@ Resources:
       Properties:
         IamInstanceProfile: !Ref ProfileWithRolesForOurApp
         ImageId: ami-0d1cd67c26f5fca19
-        InstanceType: t2.medium
+        InstanceType: t2.small
         SecurityGroups:
           - !Ref WebServerSecGroup
         UserData:
