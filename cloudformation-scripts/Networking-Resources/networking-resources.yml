@@ -233,5 +233,4 @@ Outputs:
         Description: A reference to private subnet in the 2nd Availability Zone
         Value: !Ref PrivateSubnet2
         Export:
-          Name: !Sub ${EnvironmentName}-PRT2-SN                  
-
+          Name: !Sub ${EnvironmentName}-PRT2-SN                   

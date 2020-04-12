@@ -53,9 +53,15 @@ Resources:
         FromPort: 0
         ToPort: 65535
         CidrIp: 0.0.0.0/0
+  ProfileWithRolesForOurApp:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      Roles:
+        - S3_Full_ACCESS       
   WebAppLaunchConfig:
       Type: AWS::AutoScaling::LaunchConfiguration
       Properties:
+        IamInstanceProfile: !Ref ProfileWithRolesForOurApp
         ImageId: ami-0d1cd67c26f5fca19
         InstanceType: t2.medium
         KeyName: private-devops-og-devops
@@ -64,17 +70,13 @@ Resources:
         UserData:
           Fn::Base64: !Sub |
             #!/bin/bash -xe
-            apt-get update -y
-            apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
-            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -   
-            add-apt-repository \
-            "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-            $(lsb_release -cs) \
-            stable"
-            apt-get update -y
-            apt-get install -y docker-ce 
-            usermod -aG docker ubuntu
-            docker run -p 8080:8080 tomcat:8.0
+            apt-get update
+            apt-get install unzip awscli -y
+            apt-get install apache2 -y
+            systemctl start apache2.service
+            cd /var/www/html
+            aws s3 cp s3://udacity-demo-1/udacity.zip .
+            unzip -o udacity.zip
         BlockDeviceMappings:
           - DeviceName: "/dev/sdk"
             Ebs:
@@ -129,9 +131,19 @@ Resources:
       HealthCheckProtocol: HTTP 
       HealthCheckTimeoutSeconds: 8
       HealthyThresholdCount: 2
-      Port: 8080
+      Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 5
       VpcId:
         Fn::ImportValue:
           Fn::Sub: "${EnvironmentName}-VPCID"
+
+Outputs:
+  LoadBalancerURL:
+        Description: Address of Load Load Balancer for our App 
+        Value: 
+          !Sub
+          - http://${Domain}
+          - { Domain: !GetAtt  WebAppLB.DNSName } 
+        Export:
+          Name: !Sub ${EnvironmentName}-WebAppLB-URL  
